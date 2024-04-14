@@ -3,8 +3,6 @@
 # Author: Dave Bailey (dbisu, @daveisu)
 # FeatherS2 board support
 
-import socketpool
-import time
 import os
 import storage
 
