@@ -7,6 +7,7 @@ from board import *
 import board
 import digitalio
 import storage
+import os
 
 noStorage = False
 noStoragePin = digitalio.DigitalInOut(GP15)
@@ -31,6 +32,12 @@ elif(board.board_id == 'raspberry_pi_pico_w'):
     # on Pi Pico W, default to USB hidden by default
     # so webapp can access storage
     noStorage = noStorageStatus
+    #check if remove_to_enable_storage file exists and if yes, enable USB drive
+    try:
+        with open("remove_to_enable_storage", "r") as f:
+            noStorage = False
+    except:
+        noStorage = True 
 
 if(noStorage == True):
     # don't show USB drive to host PC
