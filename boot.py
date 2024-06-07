@@ -32,9 +32,9 @@ elif(board.board_id == 'raspberry_pi_pico_w'):
     # on Pi Pico W, default to USB hidden by default
     # so webapp can access storage
     noStorage = noStorageStatus
-    #check if remove_to_enable_storage file exists and if yes, enable USB drive
+    #check if remove_to_dissable_storage file exists and if yes, enable USB drive
     try:
-        with open("remove_to_enable_storage", "r") as f:
+        with open("remove_to_dissable_storage", "r") as f:
             noStorage = False
     except:
         noStorage = True 
