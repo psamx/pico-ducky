@@ -19,6 +19,8 @@ payload_html = """<!DOCTYPE html>
         <table border="1"> <tr><th>Payload</th><th>Actions</th></tr> {} </table>
         <br>
         <a href="/new">New Script</a>
+        <br>
+        <a href="/enableStorage">Enable Storage</a>
     </body>
 </html>
 """
@@ -135,6 +137,16 @@ def cleanup_text(string):
     return b''.join(res).decode().replace('+',' ')
 
 web_app = WSGIApp()
+
+@web_app.route("/enableStorage")
+def enableStorage(request):
+    storage.remount("/",readonly=False)
+    f = open("/remove_to_dissable_storage","w")
+    f.write("Remove this file to disable storage")
+    f.close()
+    storage.remount("/",readonly=True)
+    response = response_html.format("Storage enabled")
+    return("200 OK",[('Content-Type', 'text/html')], response)
 
 @web_app.route("/ducky")
 def duck_main(request):
