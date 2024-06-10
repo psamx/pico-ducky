@@ -8,8 +8,6 @@ import supervisor
 
 
 import time
-import digitalio
-from board import *
 import board
 from duckyinpython import *
 if(board.board_id == 'raspberry_pi_pico_w'):

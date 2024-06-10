@@ -9,7 +9,6 @@ from digitalio import DigitalInOut, Pull
 from adafruit_debouncer import Debouncer
 import board
 from board import *
-import pwmio
 import asyncio
 import usb_hid
 from adafruit_hid.keyboard import Keyboard
