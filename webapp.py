@@ -41,13 +41,13 @@ edit_html = """<!DOCTYPE html>
             button{{margin:0.2em}}
             html{{font-family:'Open Sans', sans-serif;margin:2%}}
             table{{width:30%;max-width:20vh;margin-bottom:1em;border-collapse:collapse}}
-            body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
+            body{{display: flex;flex-direction: column;align-items: center; margin: 0;}}
         </style>
     </head>
     <body>
         <form action="/write/{}" method="POST">
             <textarea rows="5" name="scriptData">{}</textarea><br/>
-            <input type="submit" value="submit"/>
+            <input type="submit" value="Submit"/>
         </form>
         <br>
         <a href="/ducky"><button>Home</button></a>
