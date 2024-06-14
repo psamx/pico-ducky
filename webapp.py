@@ -236,6 +236,13 @@ def run_script(request, filenumber):
     runScript(filename)
     return("200 OK",[('Content-Type', 'text/html')], response)
 
+@web_app.route("/<any>")
+def catchAll(request, any):
+    print("***************CATCHALL***********************\n" + str(request))
+    print("catchAll ", any)
+    response = ducky_main(request)
+    return("200 OK", [('Content-Type', 'text/html')], response)
+
 async def startWebService():
 
     HOST = repr(wifi.radio.ipv4_address_ap)

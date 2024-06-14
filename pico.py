@@ -69,12 +69,12 @@ class Pico:
         led_state = False
         while True:
             if led_state:
-                print("Turning LED on")
+                #print("Turning LED on")
                 Pico.led.value = 1
                 await asyncio.sleep(0.5)
                 led_state = False
             else:
-                print("Turning LED off")
+                #print("Turning LED off")
                 Pico.led.value = 0
                 await asyncio.sleep(0.5)
                 led_state = True

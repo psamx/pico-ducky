@@ -13,6 +13,7 @@ from pico import *
 if(board.board_id == 'raspberry_pi_pico_w'):
     import wifi
     from webapp import *
+    from dns import *
 
 
 # sleep at the start to allow the device to be recognized by the host computer
@@ -63,7 +64,9 @@ async def main_loop():
         startWiFi()
         print("Starting Web Service")
         webservice_task = asyncio.create_task(startWebService())
-        await asyncio.gather(pico_led_task, button_task, webservice_task)
+        print("Starting DNS server")
+        dns_task = asyncio.create_task(run_dns_server(f'{wifi.radio.ipv4_address_ap}'))
+        await asyncio.gather(pico_led_task, button_task, webservice_task, dns_task)
     else:
         pico_led_task = asyncio.create_task(Pico.blink_pico_led(led))
         await asyncio.gather(pico_led_task, button_task)
