@@ -56,19 +56,36 @@ else:
 led_state = False
 
 async def main_loop():
+    while True:
+        tasks = []
+        try:
+            button_task = asyncio.create_task(Pico.monitor_buttons())
+            tasks.append(button_task)
+            if board.board_id == 'raspberry_pi_pico_w':
+                pico_led_task = asyncio.create_task(Pico.blink_pico_w_led())
+                tasks.append(pico_led_task)
+                print("Starting Wifi")
+                startWiFi()
+                print("Starting Web Service")
+                webservice_task = asyncio.create_task(startWebService())
+                tasks.append(webservice_task)
+                print("Starting DNS server")
+                dns_task = asyncio.create_task(run_dns_server(f'{wifi.radio.ipv4_address_ap}'))
+                tasks.append(dns_task)
+            else:
+                pico_led_task = asyncio.create_task(Pico.blink_pico_led(led))
+                tasks.append(pico_led_task)
 
-    button_task = asyncio.create_task(Pico.monitor_buttons())
-    if(board.board_id == 'raspberry_pi_pico_w'):
-        pico_led_task = asyncio.create_task(Pico.blink_pico_w_led())
-        print("Starting Wifi")
-        startWiFi()
-        print("Starting Web Service")
-        webservice_task = asyncio.create_task(startWebService())
-        print("Starting DNS server")
-        dns_task = asyncio.create_task(run_dns_server(f'{wifi.radio.ipv4_address_ap}'))
-        await asyncio.gather(pico_led_task, button_task, webservice_task, dns_task)
-    else:
-        pico_led_task = asyncio.create_task(Pico.blink_pico_led(led))
-        await asyncio.gather(pico_led_task, button_task)
+            await asyncio.gather(*tasks)
+        except Exception as e:
+            print(f"Error: {e}")
+            print("Stopping remaining tasks and restarting main loop in 5 seconds...")
+            for task in tasks:
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+            await asyncio.sleep(5)
 
 asyncio.run(main_loop())
