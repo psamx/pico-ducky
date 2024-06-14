@@ -101,7 +101,16 @@ response_html = """<!DOCTYPE html>
 </html>
 """
 
-newrow_html = "<tr><td>{}</td><td><a href='/edit/{}'><button>Edit</button></a><a href='/run/{}'><button>Run</button></a></tr>"
+newrow_html = """
+            <tr>
+                <td>{}</td>
+                <td>
+                    <a href='/edit/{}'><button>Edit</button></a>
+                    <a href='/run/{}'><button>Run</button></a>
+                    <a href='/delete/{}'><button>Delete</button></a>
+                </td>
+            </tr>
+            """
 
 def setPayload(payload_number):
     if(payload_number == 1):
@@ -122,7 +131,7 @@ def ducky_main(request):
     for f in files:
         if ('.dd' in f) == True:
             payloads.append(f)
-            newrow = newrow_html.format(f,f,f)
+            newrow = newrow_html.format(f,f,f,f)
             #print(newrow)
             rows = rows + newrow
 
@@ -250,6 +259,14 @@ def run_script(request, filename):
     runScript(filename)
     return("200 OK",[('Content-Type', 'text/html')], response)
 
+@web_app.route("/delete/<filename>")
+def delete(request, filename):
+    print("Deleting ", filename)
+    os.remove(filename)
+    response = response_html.format("Deleted script " + filename)
+
+    return("200 OK",[('Content-Type', 'text/html')], response)
+
 @web_app.route("/")
 def index(request):
     response = ducky_main(request)
@@ -279,7 +296,7 @@ async def startWebService():
 
     wsgiServer = server.WSGIServer(PORT, application=web_app)
 
-    print(f"open this IP in your browser: http://{HOST}:{PORT}/")
+    print(f"Open this IP in your browser: http://{HOST}:{PORT}/")
 
     # Start the server
     wsgiServer.start()
