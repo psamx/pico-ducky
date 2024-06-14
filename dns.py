@@ -4,7 +4,7 @@ import asyncio
 import wifi
 import gc
 
-
+DNS_ANSWERS = ['ncsi', 'msftconnecttest', 'connectivitycheck', 'clients3', 'google', 'login', 'gvt3', 'apple', 'gvt2']
 
 class DNSQuery:
     def __init__(self, data):
@@ -63,11 +63,10 @@ async def run_dns_server(SERVER_IP):
                 print("Incoming data...")
                 if num_bytes > 0:
                     query = DNSQuery(data[:num_bytes])
-
-                    dnsResponse = query.response(SERVER_IP)
-                    udps.sendto(dnsResponse, addr)
-                
-                print("Replying: {:s} -> {:s}".format(query.domain, SERVER_IP))
+                    if any(word in query.domain for word in DNS_ANSWERS):
+                        dnsResponse = query.response(SERVER_IP)
+                        udps.sendto(dnsResponse, addr)
+                        print("Replying: {:s} -> {:s}".format(query.domain, SERVER_IP))
 
             await asyncio.sleep(0.1)
 
