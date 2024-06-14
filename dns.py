@@ -60,10 +60,10 @@ async def run_dns_server(SERVER_IP):
             ready = select.select([udps], [], [], 1)  # 1 second timeout
             if ready[0]:
                 num_bytes, addr = udps.recvfrom_into(data)
-                print("Incoming data...")
                 if num_bytes > 0:
                     query = DNSQuery(data[:num_bytes])
                     if any(word in query.domain for word in DNS_ANSWERS):
+                        print("Incoming data...")
                         dnsResponse = query.response(SERVER_IP)
                         udps.sendto(dnsResponse, addr)
                         print("Replying: {:s} -> {:s}".format(query.domain, SERVER_IP))
