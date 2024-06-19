@@ -19,8 +19,10 @@ payload_html = """<html>
         <style>
             button{{margin:0.2em}}
             html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:30%;max-width:20vh;margin-bottom:1em;border-collapse:collapse}}
+            table{{width:80%;max-width:100%;margin-bottom:1em;border-collapse:collapse}}
             body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
+            form{{width:100%}}
+            textarea{{width:100%}}
         </style>
     </head>
     <body>
@@ -40,13 +42,15 @@ edit_html = """<!DOCTYPE html>
         <style>
             button{{margin:0.2em}}
             html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:30%;max-width:20vh;margin-bottom:1em;border-collapse:collapse}}
+            table{{width:80%;max-width:100%;margin-bottom:1em;border-collapse:collapse}}
             body{{display: flex;flex-direction: column;align-items: center; margin: 0;}}
+            form{{width:100%}}
+            textarea{{width:100%}}
         </style>
     </head>
     <body>
         <form action="/write/{}" method="POST">
-            <textarea rows="5" name="scriptData">{}</textarea><br/>
+            <textarea rows="20" name="scriptData">{}</textarea><br/>
             <input type="submit" value="Submit"/>
         </form>
         <br>
@@ -63,20 +67,20 @@ new_html = """<!DOCTYPE html>
         <style>
             button{{margin:0.2em}}
             html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:30%;max-width:20vh;margin-bottom:1em;border-collapse:collapse}}
+            table{{width:80%;max-width:100%;margin-bottom:1em;border-collapse:collapse}}
             body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
+            form{{width:100%}}
+            textarea{{width:100%}}
         </style>    
     </head>
     <body>
-        <div class="main">
             <form action="/new" method="POST">
                 <p>New Script:</p>
                 <textarea rows="1" name="scriptName" placeholder="script name"></textarea><br>
-                <textarea id="ducky-input" rows="5" name="scriptData" placeholder="script"></textarea>
+                <textarea id="ducky-input" rows="20" name="scriptData" placeholder="script"></textarea>
                 <br><input type="submit" value="Submit"/>
             </form>
             <a href="/ducky"><button>Go Back</button></a>
-        </div>
     </body>
 </html>
 """
@@ -91,6 +95,8 @@ response_html = """<!DOCTYPE html>
             html{{font-family:'Open Sans', sans-serif;margin:2%}}
             table{{width:30%;max-width:20vh;margin-bottom:1em;border-collapse:collapse}}
             body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
+            form{{width:100%}}
+            textarea{{width:100%}}
         </style>
     </head>
     <body>
@@ -230,7 +236,7 @@ def write_script(request, filename):
 def write_new_script(request):
     response = ''
     if(request.method == 'GET'):
-        response = new_html
+        response = new_html.format()
     else:
         data = request.body.getvalue()
         fields = data.split("&")
