@@ -12,18 +12,22 @@ import wifi
 
 from duckyinpython import *
 
+style_html = """
+        <style>
+            button{margin:0.2em}
+            html{font-family:'Open Sans', sans-serif;margin:2%}
+            table{width:80%;max-width:100%;margin-bottom:1em;border-collapse:collapse}
+            body{display: flex;flex-direction: column;align-items: center;margin: 0;}
+            form{width:100%}
+            textarea{width:100%}
+        </style>
+"""
+
 payload_html = """<html>
     <head>
         <title>Pico W Ducky</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            button{{margin:0.2em}}
-            html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:80%;max-width:100%;margin-bottom:1em;border-collapse:collapse}}
-            body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
-            form{{width:100%}}
-            textarea{{width:100%}}
-        </style>
+        {}
     </head>
     <body>
         <h1>Pico W Ducky</h1>
@@ -39,14 +43,7 @@ edit_html = """<!DOCTYPE html>
     <head>
         <title>Script Editor</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            button{{margin:0.2em}}
-            html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:80%;max-width:100%;margin-bottom:1em;border-collapse:collapse}}
-            body{{display: flex;flex-direction: column;align-items: center; margin: 0;}}
-            form{{width:100%}}
-            textarea{{width:100%}}
-        </style>
+        {}
     </head>
     <body>
         <form action="/write/{}" method="POST">
@@ -64,14 +61,7 @@ new_html = """<!DOCTYPE html>
     <head>
         <title>New Script</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            button{{margin:0.2em}}
-            html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:80%;max-width:100%;margin-bottom:1em;border-collapse:collapse}}
-            body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
-            form{{width:100%}}
-            textarea{{width:100%}}
-        </style>    
+        {}  
     </head>
     <body>
             <form action="/new" method="POST">
@@ -90,14 +80,7 @@ response_html = """<!DOCTYPE html>
     <head>
         <title>Pico W Ducky</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            button{{margin:0.2em}}
-            html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:30%;max-width:20vh;margin-bottom:1em;border-collapse:collapse}}
-            body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
-            form{{width:100%}}
-            textarea{{width:100%}}
-        </style>
+       {}
     </head>
     <body>
         <h1>Pico W Ducky</h1>
@@ -141,7 +124,7 @@ def ducky_main(request):
             #print(newrow)
             rows = rows + newrow
 
-    response = payload_html.format(rows)
+    response = payload_html.format(style_html,rows)
 
     return(response)
 
@@ -188,7 +171,7 @@ def enableStorage(request):
     f.write("Remove this file to disable storage")
     f.close()
     storage.remount("/",readonly=True)
-    response = response_html.format("Storage enabled")
+    response = response_html.format(style_html,"Storage enabled")
     return("200 OK",[('Content-Type', 'text/html')], response)
 
 @web_app.route("/ducky")
@@ -204,7 +187,7 @@ def edit(request, filename):
     for line in f:
         textbuffer = textbuffer + line
     f.close()
-    response = edit_html.format(filename,textbuffer)
+    response = edit_html.format(style_html,filename,textbuffer)
     #print(response)
 
     return("200 OK",[('Content-Type', 'text/html')], response)
@@ -229,14 +212,14 @@ def write_script(request, filename):
         f.write(line)
     f.close()
     storage.remount("/",readonly=True)
-    response = response_html.format("Wrote script " + filename)
+    response = response_html.format(style_html,"Wrote script " + filename)
     return("200 OK",[('Content-Type', 'text/html')], response)
 
 @web_app.route("/new",methods=['GET','POST'])
 def write_new_script(request):
     response = ''
     if(request.method == 'GET'):
-        response = new_html.format()
+        response = new_html.format(style_html)
     else:
         data = request.body.getvalue()
         fields = data.split("&")
@@ -254,13 +237,13 @@ def write_new_script(request):
             f.write(line)
         f.close()
         storage.remount("/",readonly=True)
-        response = response_html.format("Wrote script " + filename)
+        response = response_html.format(style_html,"Wrote script " + filename)
     return("200 OK",[('Content-Type', 'text/html')], response)
 
 @web_app.route("/run/<filename>")
 def run_script(request, filename):
     print("run_script ", filename)
-    response = response_html.format("Running script " + filename)
+    response = response_html.format(style_html,"Running script " + filename)
     #print(response)
     runScript(filename)
     return("200 OK",[('Content-Type', 'text/html')], response)
@@ -269,7 +252,7 @@ def run_script(request, filename):
 def delete(request, filename):
     print("Deleting ", filename)
     os.remove(filename)
-    response = response_html.format("Deleted script " + filename)
+    response = response_html.format(style_html,"Deleted script " + filename)
 
     return("200 OK",[('Content-Type', 'text/html')], response)
 
@@ -282,7 +265,7 @@ def index(request):
 def run_script(request, filenumber):
     filename = setPayload(int(filenumber))
     print("run_script ", filenumber)
-    response = response_html.format("Running script " + filename)
+    response = response_html.format(style_html,"Running script " + filename)
     #print(response)
     runScript(filename)
     return("200 OK",[('Content-Type', 'text/html')], response)
