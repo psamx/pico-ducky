@@ -9,108 +9,9 @@ import asyncio
 import wsgiserver as server
 from adafruit_wsgi.wsgi_app import WSGIApp
 import wifi
+import html as h
 
 from duckyinpython import *
-
-payload_html = """<html>
-    <head>
-        <title>Pico W Ducky</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            button{{margin:0.2em}}
-            html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:30%;max-width:20vh;margin-bottom:1em;border-collapse:collapse}}
-            body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
-        </style>
-    </head>
-    <body>
-        <h1>Pico W Ducky</h1>
-        <table border="1"><tr><th>Payload</th><th>Actions</th></tr>{}</table><br>
-        <a href="/new"><button>New Script</button></a>
-        <a href="/enableStorage"><button>Enable Storage</button></a>
-    </body>
-</html>
-"""
-
-edit_html = """<!DOCTYPE html>
-<html> 
-    <head>
-        <title>Script Editor</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            button{{margin:0.2em}}
-            html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:30%;max-width:20vh;margin-bottom:1em;border-collapse:collapse}}
-            body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
-        </style>
-    </head>
-    <body>
-        <form action="/write/{}" method="POST">
-            <textarea rows="5" name="scriptData">{}</textarea><br/>
-            <input type="submit" value="submit"/>
-        </form>
-        <br>
-        <a href="/ducky"><button>Home</button></a>
-    </body>
-</html>
-"""
-
-new_html = """<!DOCTYPE html>
-<html>
-    <head>
-        <title>New Script</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            button{{margin:0.2em}}
-            html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:30%;max-width:20vh;margin-bottom:1em;border-collapse:collapse}}
-            body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
-        </style>    
-    </head>
-    <body>
-        <div class="main">
-            <form action="/new" method="POST">
-                <p>New Script:</p>
-                <textarea rows="1" name="scriptName" placeholder="script name"></textarea><br>
-                <textarea id="ducky-input" rows="5" name="scriptData" placeholder="script"></textarea>
-                <br><input type="submit" value="Submit"/>
-            </form>
-            <a href="/ducky"><button>Go Back</button></a>
-        </div>
-    </body>
-</html>
-"""
-
-response_html = """<!DOCTYPE html>
-<html>
-    <head>
-        <title>Pico W Ducky</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            button{{margin:0.2em}}
-            html{{font-family:'Open Sans', sans-serif;margin:2%}}
-            table{{width:30%;max-width:20vh;margin-bottom:1em;border-collapse:collapse}}
-            body{{display: flex;flex-direction: column;align-items: center;margin: 0;}}
-        </style>
-    </head>
-    <body>
-        <h1>Pico W Ducky</h1>
-        {}
-        <br><a href="/ducky"><button>Home</button></a>
-    </body>
-</html>
-"""
-
-newrow_html = """
-            <tr>
-                <td>{}</td>
-                <td>
-                    <a href='/edit/{}'><button>Edit</button></a>
-                    <a href='/run/{}'><button>Run</button></a>
-                    <a href='/delete/{}'><button>Delete</button></a>
-                </td>
-            </tr>
-            """
 
 def setPayload(payload_number):
     if(payload_number == 1):
@@ -131,11 +32,11 @@ def ducky_main(request):
     for f in files:
         if ('.dd' in f) == True:
             payloads.append(f)
-            newrow = newrow_html.format(f,f,f,f)
+            newrow = h.newrow_html.format(f,f,f,f)
             #print(newrow)
             rows = rows + newrow
 
-    response = payload_html.format(rows)
+    response = h.payload_html.format(h.style_html,rows)
 
     return(response)
 
@@ -182,7 +83,7 @@ def enableStorage(request):
     f.write("Remove this file to disable storage")
     f.close()
     storage.remount("/",readonly=True)
-    response = response_html.format("Storage enabled")
+    response = h.response_html.format(h.style_html,"Storage enabled")
     return("200 OK",[('Content-Type', 'text/html')], response)
 
 @web_app.route("/ducky")
@@ -198,7 +99,7 @@ def edit(request, filename):
     for line in f:
         textbuffer = textbuffer + line
     f.close()
-    response = edit_html.format(filename,textbuffer)
+    response = h.edit_html.format(h.style_html,filename,textbuffer)
     #print(response)
 
     return("200 OK",[('Content-Type', 'text/html')], response)
@@ -223,14 +124,14 @@ def write_script(request, filename):
         f.write(line)
     f.close()
     storage.remount("/",readonly=True)
-    response = response_html.format("Wrote script " + filename)
+    response = h.response_html.format(h.style_html,"Wrote script " + filename)
     return("200 OK",[('Content-Type', 'text/html')], response)
 
 @web_app.route("/new",methods=['GET','POST'])
 def write_new_script(request):
     response = ''
     if(request.method == 'GET'):
-        response = new_html
+        response = h.new_html.format(h.style_html)
     else:
         data = request.body.getvalue()
         fields = data.split("&")
@@ -248,13 +149,13 @@ def write_new_script(request):
             f.write(line)
         f.close()
         storage.remount("/",readonly=True)
-        response = response_html.format("Wrote script " + filename)
+        response = h.response_html.format(h.style_html,"Wrote script " + filename)
     return("200 OK",[('Content-Type', 'text/html')], response)
 
 @web_app.route("/run/<filename>")
 def run_script(request, filename):
     print("run_script ", filename)
-    response = response_html.format("Running script " + filename)
+    response = h.response_html.format(h.style_html,"Running script " + filename)
     #print(response)
     runScript(filename)
     return("200 OK",[('Content-Type', 'text/html')], response)
@@ -263,7 +164,7 @@ def run_script(request, filename):
 def delete(request, filename):
     print("Deleting ", filename)
     os.remove(filename)
-    response = response_html.format("Deleted script " + filename)
+    response = h.response_html.format(h.style_html,"Deleted script " + filename)
 
     return("200 OK",[('Content-Type', 'text/html')], response)
 
@@ -276,7 +177,7 @@ def index(request):
 def run_script(request, filenumber):
     filename = setPayload(int(filenumber))
     print("run_script ", filenumber)
-    response = response_html.format("Running script " + filename)
+    response = h.response_html.format(h.style_html,"Running script " + filename)
     #print(response)
     runScript(filename)
     return("200 OK",[('Content-Type', 'text/html')], response)
@@ -285,8 +186,7 @@ def run_script(request, filenumber):
 def catchAll(request, any):
     print("***************CATCHALL***********************\n" + str(request))
     print("catchAll ", any)
-    response = ducky_main(request)
-    return("200 OK", [('Content-Type', 'text/html')], response)
+    return("302 Found", [('Location', '/')], "")
 
 async def startWebService():
 
